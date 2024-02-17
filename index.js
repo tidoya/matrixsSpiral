@@ -1,3 +1,10 @@
+const directionTypes ={
+  right: 'right',
+  bottom: 'bottom',
+  left: 'left',
+  top: 'top',
+}
+
 function createSpiralMatrix(size){
     const spiralMatrix = Array.from({ length: size }, () => Array(size).fill(0))
     for(let i = 0; i<spiralMatrix.length; i++){
@@ -14,29 +21,34 @@ function createSpiralMatrix(size){
     }
     return spiralMatrix
 }
-const directionTypes ={
-    left: 'left',
-    right: 'right',
-    top: 'top',
-    bottom: 'bottom'
-  }
-
-function spiralize (size) {
-  let top = 0;   //Верняя граница
-  let bottom = size - 1;   //Нижняя
-  let left = 0;   //Левая
-  let right = size - 1;   //Правя
-  let direction = directionTypes.right;   //Движение
-  let currentRow = 3;   //Текущая строка
-  let currentCol = 1;   //Текущий столбец
-  
-  const spiralMatrix = createSpiralMatrix(size) //Создание спирали
-  
-  for(let i = 0; i<spiralMatrix.length; i++){
-
-      console.log(spiralMatrix[i])
-  }
-  
+function changePosition(position){
+  if(!position) throw new Error('dont have position')
+  const positions = Object.values(directionTypes)
+  const currentIndexPosition = positions.indexOf(position)
+  if(currentIndexPosition === positions.length - 1) return positions[0]
+  return positions[currentIndexPosition + 1]
 }
 
-spiralize(5)
+
+function spiralize (size) {
+  let direction = directionTypes.right;   //Движение
+  const currentPosition = [ 2, 1 ] // Текущая позиция [Текущая строка, Текущий столбец]
+  // const breakCycle = true
+  const spiralMatrix = createSpiralMatrix(size) //Создание спирали
+  // while(breakCycle){
+    if(direction === directionTypes.right){
+      if(spiralMatrix[currentPosition[0]][currentPosition[1]+2] === 1){
+        direction = changePosition(direction)
+      }
+
+      spiralMatrix[currentPosition[0]][currentPosition[1]] = 2
+    }
+  // }
+
+  return spiralMatrix
+}
+
+const resultMatrix = spiralize(5);
+for (let i = 0; i < resultMatrix.length; i++) {
+    console.log(resultMatrix[i]);
+}
