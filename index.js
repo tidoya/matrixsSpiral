@@ -1,3 +1,4 @@
+//Types of direction
 const directionTypes ={
   right: 'right',
   bottom: 'bottom',
@@ -5,8 +6,9 @@ const directionTypes ={
   top: 'top',
 }
 // @args:
-// size: number
-// Создание матрицы
+//// size: number
+//// Создание матрицы
+// @return: {[[array][array]] NxN}. Создание матрицы.
 function createSpiralMatrix(size){
     const spiralMatrix = Array.from({ length: size }, () => Array(size).fill(0))
     for(let i = 0; i<spiralMatrix.length; i++){
@@ -24,25 +26,26 @@ function createSpiralMatrix(size){
     return spiralMatrix
 }
 // @args:
-// position: string (value directionTypes)
-// currentMatrix: Двумерный массив(спираль)
-// Смена хода.
-function changePosition(position,currentPosition, currentMatrix){
-  if(!position) throw new Error('dont have position')
-  if(checkPosition(currentPosition, currentMatrix))return false
+//// direction: string (value directionTypes)
+//// currentMatrix: Двумерный массив(спираль)
+//// Смена хода.
+// @return: {string: values directionTypes}. 
+function changeDirection(direction){
+  if(!direction) throw new Error('dont have position')
   const positions = Object.values(directionTypes)
-  const currentIndexPosition = positions.indexOf(position)
+  const currentIndexPosition = positions.indexOf(direction)
   if(currentIndexPosition === positions.length - 1) return positions[0]
   return positions[currentIndexPosition + 1]
 }
 // @args:
-// currentPosition: Текущая позиция [Текущая строка, Текущий столбец]
-// currentMatrix: Двумерный массив(спираль)
+//// direction: Текущее движение
+//// currentPosition: Текущая позиция [Текущая строка, Текущий столбец]
+//// currentMatrix: Двумерный массив(спираль)
+// @return: {boolean}. Проверка можно ли идти дальше
 // проверка позиции 
-function checkPosition(currentPosition, currentMatrix){
+function checkPosition(direction, currentPosition, currentMatrix){
   // обработка ошибок
-  if(!currentPosition || !currentMatrix) throw new Error('dont have params')
-
+  if(!currentPosition || !currentMatrix || !direction) throw new Error('dont have params')
   if(currentPosition.length !== 2) throw new Error('wrong position')
   const rows = currentMatrix.length;
   let maxLenCols = 0
@@ -52,68 +55,76 @@ function checkPosition(currentPosition, currentMatrix){
   if (rows !== maxLenCols) {
     throw new Error('wrong matrix')
   }
-  
-
-  // console.log(currentMatrix[currentPosition[0] + 1][currentPosition[1]])
-  // //Условия когда нет хода.
-  // if((currentMatrix[currentPosition[0] + 2][currentPosition[1]] === 1) && 
-  // (currentMatrix[currentPosition[0] - 2][currentPosition[1]] === 1) && 
-  // (currentMatrix[currentPosition[0]][currentPosition[1] + 2] === 1) && 
-  // (currentMatrix[currentPosition[0]][currentPosition[1]- 2] === 1)){
-  //   return true
-  // }
-  
-  return false
+  // Проверка переднего по направлению элемента
+  switch (direction) {
+    case directionTypes.right:
+      return (
+        currentMatrix[currentPosition[0]][currentPosition[1] + 1] === 0 &&
+        currentMatrix[currentPosition[0]][currentPosition[1] + 2] !== 1 &&
+        currentMatrix[currentPosition[0] + 1]?.[currentPosition[1] + 1] === 0
+      );
+    case directionTypes.bottom:
+      return (
+        currentMatrix[currentPosition[0] + 1]?.[currentPosition[1]] === 0 &&
+        currentMatrix[currentPosition[0] + 2]?.[currentPosition[1]] !== 1 &&
+        currentMatrix[currentPosition[0] + 1]?.[currentPosition[1] - 1] === 0
+      );
+    case directionTypes.left:
+      return (
+        currentMatrix[currentPosition[0]][currentPosition[1] - 1] === 0 &&
+        currentMatrix[currentPosition[0]][currentPosition[1] - 2] !== 1 &&
+        currentMatrix[currentPosition[0] - 1]?.[currentPosition[1] - 1] === 0
+      );
+    case directionTypes.top:
+      return (
+        currentMatrix[currentPosition[0] - 1]?.[currentPosition[1]] === 0 &&
+        currentMatrix[currentPosition[0] - 2]?.[currentPosition[1]] !== 1 &&
+        currentMatrix[currentPosition[0] - 1]?.[currentPosition[1] + 1] === 0
+      );
+  }
 }
 // @args:
-// size: Размер матрицы
+//// direction: Текущее движение
+//// currentPosition: Текущая позиция [Текущая строка, Текущий столбец]
+// @return update currentPosition [Текущая строка, Текущий столбец]
+function changeCurrentPosition(direction, currentPosition){
+  switch (direction) {
+    case directionTypes.right:
+      return [currentPosition[0], currentPosition[1]+=1];
+    case directionTypes.bottom:
+      return [currentPosition[0]+=1, currentPosition[1]]
+    case directionTypes.left:
+      return [currentPosition[0], currentPosition[1]-=1]
+    case directionTypes.top:
+      return [currentPosition[0]-=1, currentPosition[1]]
+  }
+}
+// @args:
+//// size: Размер матрицы
+// @return finished spiralMatrix
 function spiralize (size) {
   if(!size) throw new Error('incorrect size')
-
   let direction = directionTypes.right;   //Текущее движение
   let currentPosition = [ 2, 1 ] // Текущая позиция [Текущая строка, Текущий столбец]
   const spiralMatrix = createSpiralMatrix(size)
-    while(direction){
-      if(direction === directionTypes.right){
-        if(spiralMatrix[currentPosition[0]][currentPosition[1]+1] === 1){
-          direction = changePosition(direction, currentPosition, spiralMatrix)
-          currentPosition = [currentPosition[0]+1, currentPosition[1]-1]
-        }else{
-          spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
-          currentPosition = [currentPosition[0], currentPosition[1]+1]
-        }
-      }
-      if(direction === directionTypes.bottom){
-        if(spiralMatrix[currentPosition[0]+1][currentPosition[1]] === 1){
-          direction = changePosition(direction,currentPosition,  spiralMatrix)
-          currentPosition = [currentPosition[0]-1, currentPosition[1]]
-        }else{
-          spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
-          currentPosition = [currentPosition[0]+1, currentPosition[1]]
-        }
-      }
-      if(direction === directionTypes.left){
-        if(spiralMatrix[currentPosition[0]][currentPosition[1]-1] === 1){
-          direction = changePosition(direction, currentPosition,  spiralMatrix)
-          currentPosition = [currentPosition[0], currentPosition[1]+1]
-        }else{
-          spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
-          currentPosition = [currentPosition[0], currentPosition[1]-1]
-        }
-      }
-      if(direction === directionTypes.top){
-        if(spiralMatrix[currentPosition[0]-1][currentPosition[1]] === 1){
-          direction = changePosition(direction,currentPosition, spiralMatrix)
-          currentPosition = [currentPosition[0]+1, currentPosition[1]]
-        }else{
-          spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
-          currentPosition = [currentPosition[0]-1, currentPosition[1]]
-        }
-      }
+
+  while(true){
+    spiralMatrix[currentPosition[0]][currentPosition[1]] = 1;
+
+    if(checkPosition(direction, currentPosition,spiralMatrix)){
+      currentPosition = changeCurrentPosition(direction, currentPosition)  
+    }else{
+      direction = changeDirection(direction);
+      if(!checkPosition(direction, currentPosition,spiralMatrix)) break;
+    }
   }
- 
+  
   return spiralMatrix
 }
 
-const resultMatrix = spiralize(9);
-console.log(JSON.stringify(resultMatrix).replace(/],/g, '],\n').slice(1, -1));
+
+for(let i = 3; i<20; i+=1){
+  console.log(i, '``````````````````````````````')
+  console.log(JSON.stringify(spiralize(i)).replace(/],/g, '],\n').slice(1, -1));
+}
+
