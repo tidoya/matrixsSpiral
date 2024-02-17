@@ -4,9 +4,9 @@ const directionTypes ={
   left: 'left',
   top: 'top',
 }
-//@args:
-//size: number
-//Создание матрицы
+// @args:
+// size: number
+// Создание матрицы
 function createSpiralMatrix(size){
     const spiralMatrix = Array.from({ length: size }, () => Array(size).fill(0))
     for(let i = 0; i<spiralMatrix.length; i++){
@@ -23,11 +23,13 @@ function createSpiralMatrix(size){
     }
     return spiralMatrix
 }
-//@args:
-//position: string (value directionTypes)
-//Смена хода.
-function changePosition(position){
+// @args:
+// position: string (value directionTypes)
+// currentMatrix: Двумерный массив(спираль)
+// Смена хода.
+function changePosition(position,currentPosition, currentMatrix){
   if(!position) throw new Error('dont have position')
+  if(checkPosition(currentPosition, currentMatrix))return false
   const positions = Object.values(directionTypes)
   const currentIndexPosition = positions.indexOf(position)
   if(currentIndexPosition === positions.length - 1) return positions[0]
@@ -35,15 +37,16 @@ function changePosition(position){
 }
 // @args:
 // currentPosition: Текущая позиция [Текущая строка, Текущий столбец]
-// currnetMatrix: Двумерный массив(спираль)
-// проверка позиции на 
-function checkPosition(currentPosition, currnetMatrix){
+// currentMatrix: Двумерный массив(спираль)
+// проверка позиции 
+function checkPosition(currentPosition, currentMatrix){
   // обработка ошибок
-  if(!currentPosition || !currnetMatrix) throw new Error('dont have params')
+  if(!currentPosition || !currentMatrix) throw new Error('dont have params')
+
   if(currentPosition.length !== 2) throw new Error('wrong position')
-  const rows = currnetMatrix.length;
+  const rows = currentMatrix.length;
   let maxLenCols = 0
-  currnetMatrix.forEach(row => {
+  currentMatrix.forEach(row => {
     maxLenCols = row.length
   });
   if (rows !== maxLenCols) {
@@ -51,14 +54,14 @@ function checkPosition(currentPosition, currnetMatrix){
   }
   
 
-  console.log()
-  //Условия когда нет хода.
-  if((currnetMatrix[currentPosition[0] + 2][currentPosition[1]] === 1) && 
-  (currnetMatrix[currentPosition[0] - 2][currentPosition[1]] === 1) && 
-  (currnetMatrix[currentPosition[0]][currentPosition[1] + 2] === 1) && 
-  (currnetMatrix[currentPosition[0]][currentPosition[1]- 2] === 1)){
-    return true
-  }
+  // console.log(currentMatrix[currentPosition[0] + 1][currentPosition[1]])
+  // //Условия когда нет хода.
+  // if((currentMatrix[currentPosition[0] + 2][currentPosition[1]] === 1) && 
+  // (currentMatrix[currentPosition[0] - 2][currentPosition[1]] === 1) && 
+  // (currentMatrix[currentPosition[0]][currentPosition[1] + 2] === 1) && 
+  // (currentMatrix[currentPosition[0]][currentPosition[1]- 2] === 1)){
+  //   return true
+  // }
   
   return false
 }
@@ -69,56 +72,48 @@ function spiralize (size) {
 
   let direction = directionTypes.right;   //Текущее движение
   let currentPosition = [ 2, 1 ] // Текущая позиция [Текущая строка, Текущий столбец]
-  let isBadPosition = false
   const spiralMatrix = createSpiralMatrix(size)
-  // while(!isBadPosition){
-    
-    
-    if(direction === directionTypes.right){
-      if(spiralMatrix[currentPosition[0]][currentPosition[1]+2] === 1){
-        direction = changePosition(direction)
+    while(direction){
+      if(direction === directionTypes.right){
+        if(spiralMatrix[currentPosition[0]][currentPosition[1]+1] === 1){
+          direction = changePosition(direction, currentPosition, spiralMatrix)
+          currentPosition = [currentPosition[0]+1, currentPosition[1]-1]
+        }else{
+          spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
+          currentPosition = [currentPosition[0], currentPosition[1]+1]
+        }
       }
-
-      spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
-      currentPosition = [currentPosition[0], currentPosition[1]+1]
-    }
-    if(direction === directionTypes.right){
-      if(spiralMatrix[currentPosition[0]][currentPosition[1]+2] === 1){
-        direction = changePosition(direction)
+      if(direction === directionTypes.bottom){
+        if(spiralMatrix[currentPosition[0]+1][currentPosition[1]] === 1){
+          direction = changePosition(direction,currentPosition,  spiralMatrix)
+          currentPosition = [currentPosition[0]-1, currentPosition[1]]
+        }else{
+          spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
+          currentPosition = [currentPosition[0]+1, currentPosition[1]]
+        }
       }
-
-      spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
-      currentPosition = [currentPosition[0], currentPosition[1]+1]
-    }
-
-    if(direction === directionTypes.right){
-      if(spiralMatrix[currentPosition[0]][currentPosition[1]+2] === 1){
-        direction = changePosition(direction)
+      if(direction === directionTypes.left){
+        if(spiralMatrix[currentPosition[0]][currentPosition[1]-1] === 1){
+          direction = changePosition(direction, currentPosition,  spiralMatrix)
+          currentPosition = [currentPosition[0], currentPosition[1]+1]
+        }else{
+          spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
+          currentPosition = [currentPosition[0], currentPosition[1]-1]
+        }
       }
-
-      spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
-      currentPosition = [currentPosition[0], currentPosition[1]+1]
-    }
-
-    if(direction === directionTypes.right){
-      if(spiralMatrix[currentPosition[0]][currentPosition[1]+2] === 1){
-        direction = changePosition(direction)
+      if(direction === directionTypes.top){
+        if(spiralMatrix[currentPosition[0]-1][currentPosition[1]] === 1){
+          direction = changePosition(direction,currentPosition, spiralMatrix)
+          currentPosition = [currentPosition[0]+1, currentPosition[1]]
+        }else{
+          spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
+          currentPosition = [currentPosition[0]-1, currentPosition[1]]
+        }
       }
-
-      spiralMatrix[currentPosition[0]][currentPosition[1]] = 1
-      currentPosition = [currentPosition[0], currentPosition[1]+1]
-    }
-
-
-    //check position
-    isBadPosition = checkPosition(currentPosition, spiralMatrix)
-    console.log('isBadPosition', isBadPosition)
-  // }
-
+  }
+ 
   return spiralMatrix
 }
 
-const resultMatrix = spiralize(6);
-for (let i = 0; i < resultMatrix.length; i++) {
-    console.log(resultMatrix[i]);
-}
+const resultMatrix = spiralize(9);
+console.log(JSON.stringify(resultMatrix).replace(/],/g, '],\n').slice(1, -1));
