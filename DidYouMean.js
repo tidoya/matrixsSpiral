@@ -6,6 +6,7 @@ function Dictionary(words) {
 //// term: Искомое слово. {string}
 // @return {string} наиболее похожее слово.
 Dictionary.prototype.findMostSimilar = function(term) {
+    if(!term) throw new Error('enter a word')
     // Начальное значение минимального количества изменений
     let minChanges = Infinity; 
     // Начальное значение наиболее похожего слова
@@ -28,6 +29,7 @@ Dictionary.prototype.findMostSimilar = function(term) {
 //// word2: Сравниваемое слово. {string}
 // @return {string} наиболее похожее слово.
 Dictionary.prototype.calculateChanges = function(word1, word2) {
+    if(!word1 | !word2) throw new Error('incorrect words')
     // Создаем матрицу размером (m+1) x (n+1) для хранения расстояния редактирования
     const matrix = [];
     for (let i = 0; i <= word1.length; i++) {
